@@ -3,9 +3,9 @@ import axios from "axios";
 import "./App.css";
 
 function App() {
-  const [data, setData] = useState(null);
+  const [chartData, setChartData] = useState(null);
 
-  function getCurrencyTracker(parsedRUBInfo) {
+  function getCurrencyTracker(parsedInfo) {
     const lineWidthAlign = 0.5;
     let stepY;
     const x = 0;
@@ -19,7 +19,7 @@ function App() {
     let deltaIntervalRight = 0;
     let shiftX = 0;
     const canvasChartGrid = document.getElementById("chart_grid");
-    function drawRUBCurrencyPage() {
+    function drawCurrencyPage() {
       const canvasChartContainer = document.getElementById(
         "chart-markup-table-pane"
       );
@@ -169,7 +169,7 @@ function App() {
       const deltaCheckPoint = Math.round(
         Number(rectangleWidth * scale + rectangleSpace * scale).toFixed(2)
       );
-      const scaleCheckPoint = parsedRUBInfo["o"].length - rectangleCapacity;
+      const scaleCheckPoint = parsedInfo["o"].length - rectangleCapacity;
 
       deltaIntervalLeft = delta - shiftX;
       deltaIntervalRight = shiftX - delta;
@@ -189,41 +189,41 @@ function App() {
       }
 
       const sumTotalRectangles =
-        parsedRUBInfo["o"].length - startRatePoint - rectangleCapacity;
+        parsedInfo["o"].length - startRatePoint - rectangleCapacity;
 
-      const parsedRUBInfoArrayOpen = []; // Open Rate array
+      const parsedInfoArrayOpen = []; // Open Rate array
       getRateData(
-        parsedRUBInfo["o"],
-        parsedRUBInfoArrayOpen,
+        parsedInfo["o"],
+        parsedInfoArrayOpen,
         rectangleCapacity,
         sumTotalRectangles
       );
-      const parsedRUBInfoArrayClose = []; // Close Rate array
+      const parsedInfoArrayClose = []; // Close Rate array
       getRateData(
-        parsedRUBInfo["c"],
-        parsedRUBInfoArrayClose,
+        parsedInfo["c"],
+        parsedInfoArrayClose,
         rectangleCapacity,
         sumTotalRectangles
       );
-      const parsedRUBInfoArrayLow = []; // Low Rate array
+      const parsedInfoArrayLow = []; // Low Rate array
       getRateData(
-        parsedRUBInfo["l"],
-        parsedRUBInfoArrayLow,
+        parsedInfo["l"],
+        parsedInfoArrayLow,
         rectangleCapacity,
         sumTotalRectangles
       );
-      const parsedRUBInfoArrayHigh = []; // High Rate array
+      const parsedInfoArrayHigh = []; // High Rate array
       getRateData(
-        parsedRUBInfo["h"],
-        parsedRUBInfoArrayHigh,
+        parsedInfo["h"],
+        parsedInfoArrayHigh,
         rectangleCapacity,
         sumTotalRectangles
       );
 
-      const totalRateData = parsedRUBInfoArrayOpen
-        .concat(parsedRUBInfoArrayClose)
-        .concat(parsedRUBInfoArrayLow)
-        .concat(parsedRUBInfoArrayHigh);
+      const totalRateData = parsedInfoArrayOpen
+        .concat(parsedInfoArrayClose)
+        .concat(parsedInfoArrayLow)
+        .concat(parsedInfoArrayHigh);
 
       const maxRateArray = Math.max.apply(Math, totalRateData);
       const minRateArray = Math.min.apply(Math, totalRateData);
@@ -235,13 +235,13 @@ function App() {
       drawGrid(ctx, rectangleCapacity);
 
       for (let j = rectangleCapacity - 1; j >= 0; j--) {
-        const openRate = parsedRUBInfoArrayOpen[j];
-        const closeRate = parsedRUBInfoArrayClose[j];
+        const openRate = parsedInfoArrayOpen[j];
+        const closeRate = parsedInfoArrayClose[j];
 
         const deltaCloseOpenRate = Math.abs(openRate - closeRate);
 
-        const lowRate = parsedRUBInfoArrayLow[j];
-        const highRate = parsedRUBInfoArrayHigh[j];
+        const lowRate = parsedInfoArrayLow[j];
+        const highRate = parsedInfoArrayHigh[j];
 
         const deltaOpenMinRate = openRate - minRateArray;
         const deltaCloseMinRate = closeRate - minRateArray;
@@ -390,10 +390,10 @@ function App() {
       ctx.fillStyle = "#505050";
 
       // Get time data based on the rectangleCapacity on clientWidth;
-      const parsedRUBInfoTime = [];
+      const parsedInfoTime = [];
       getRateData(
-        parsedRUBInfo["t"],
-        parsedRUBInfoTime,
+        parsedInfo["t"],
+        parsedInfoTime,
         tradingTimeCapacity,
         totalTradingTimePoints
       );
@@ -420,7 +420,7 @@ function App() {
         ctx.stroke();
 
         const time = new Date(
-          parsedRUBInfoTime[Math.floor(tradingTimeCapacity - 1 - i)] * 1000
+          parsedInfoTime[Math.floor(tradingTimeCapacity - 1 - i)] * 1000
         );
         const hours = time.getHours().pad(2);
         const minutes = time.getMinutes().pad(2);
@@ -464,7 +464,7 @@ function App() {
     window.addEventListener("resize", resizeChart);
     function resizeChart(event) {
       canvasChartGrid.width = event.clientWidth;
-      drawRUBCurrencyPage();
+      drawCurrencyPage();
     }
     Number.prototype.pad = function (size) {
       let s = String(this);
@@ -473,38 +473,35 @@ function App() {
       }
       return s;
     };
-    drawRUBCurrencyPage();
+    drawCurrencyPage();
   }
 
   useEffect(() => {
-    const loadRUBData = async () => {
+    const loadData = async () => {
       const dateInterval = 430000;
       const currentDate = Math.floor(Date.now() / 1000);
       const startDate = currentDate - dateInterval;
 
       /*Object.defineProperty(document, "referrer", {get : function(){ return "my new referrer"; }});*/
 
-      const { data } = await axios.get(
-        `https://candlestick-chart-5x57.vercel.app/url`,
-        {
-          params: {
-            from: startDate,
-            to: currentDate,
-          },
-        }
-      );
-      setData(data);
+      const { data } = await axios.get(`${process.env.SERVER_URL}/url`, {
+        params: {
+          from: startDate,
+          to: currentDate,
+        },
+      });
+      setChartData(data);
     };
-    loadRUBData();
+    loadData();
   }, []);
 
   useEffect(() => {
-    if (data) {
-      getCurrencyTracker(data);
+    if (chartData) {
+      getCurrencyTracker(chartData);
     }
-  }, [data]);
+  }, [chartData]);
 
-  return !data ? (
+  return !chartData ? (
     <div>Loading...</div>
   ) : (
     <div>
