@@ -483,13 +483,15 @@ function App() {
       const startDate = currentDate - dateInterval;
 
       /*Object.defineProperty(document, "referrer", {get : function(){ return "my new referrer"; }});*/
-
-      const { data } = await axios.get(`${process.env.SERVER_URL}/url`, {
-        params: {
-          from: startDate,
-          to: currentDate,
-        },
-      });
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_CANDLESTICK_SERVER_URL}/url`,
+        {
+          params: {
+            from: startDate,
+            to: currentDate,
+          },
+        }
+      );
       setChartData(data);
     };
     loadData();
