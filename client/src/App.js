@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
 
 function App() {
+  const [data, setData] = useState(null);
+
   function getCurrencyTracker(parsedRUBInfo) {
     const lineWidthAlign = 0.5;
     let stepY;
@@ -476,7 +478,6 @@ function App() {
 
   useEffect(() => {
     const loadRUBData = async () => {
-      // Create new object XMLHttpRequest
       const dateInterval = 430000;
       const currentDate = Math.floor(Date.now() / 1000);
       const startDate = currentDate - dateInterval;
@@ -492,13 +493,20 @@ function App() {
           },
         }
       );
-
-      getCurrencyTracker(data);
+      setData(data);
     };
     loadRUBData();
   }, []);
 
-  return (
+  useEffect(() => {
+    if (data) {
+      getCurrencyTracker(data);
+    }
+  }, [data]);
+
+  return !data ? (
+    <div>Loading...</div>
+  ) : (
     <div>
       <div id="chart-markup-table-pane">
         <canvas id="chart_grid"></canvas>
