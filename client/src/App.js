@@ -483,12 +483,15 @@ function App() {
 
       /*Object.defineProperty(document, "referrer", {get : function(){ return "my new referrer"; }});*/
 
-      const { data } = await axios.get(`http://localhost:4000/url`, {
-        params: {
-          from: startDate,
-          to: currentDate,
-        },
-      });
+      const { data } = await axios.get(
+        `https://candlestick-chart-5x57.vercel.app/url`,
+        {
+          params: {
+            from: startDate,
+            to: currentDate,
+          },
+        }
+      );
 
       getCurrencyTracker(data);
     };
