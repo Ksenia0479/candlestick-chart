@@ -14,8 +14,8 @@ app.use(
 app.get("/url", async (req, res) => {
   const from = req.query.from;
   const to = req.query.to;
-  const urlRUB = `${process.env.CHART_URL}?symbol=29&resolution=5&from=${from}&to=${to}`;
-  const { data } = await axios.get(urlRUB);
+  const url = `${process.env.CHART_URL}?symbol=29&resolution=5&from=${from}&to=${to}`;
+  const { data } = await axios.get(url);
   res.json(data);
 });
 
