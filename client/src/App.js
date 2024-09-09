@@ -504,7 +504,7 @@ function App() {
   }, [chartData]);
 
   return !chartData ? (
-    <div>Loading...</div>
+    <div>Page is loading...</div>
   ) : (
     <div>
       <div id="chart-markup-table-pane">
